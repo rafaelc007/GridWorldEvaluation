@@ -8,31 +8,53 @@ class Gridworld:
         self._n_states = self._side**2
         self._state_list = np.arange(self._n_states)
 
-    def _walk(self, state, direction):
+    def walk(self, state, direction):
+        """
+        walk a step and find out where you end up.
+        :param state: actual state to eval
+        :param direction: direction where to go {'u', 'd', 'r', 'l'}
+        :return: {next state, reward}
+        """
         if state in self._finals:
-            return state
+            return state, 0
         elif direction == "u":
-            return state if state < self._side else state-self._side
+            return (state, -1) if state < self._side else state-self._side
         elif direction == "d":
-            return state if state > self._n_states-self._side else state+self._side
+            return (state, -1) if state > self._n_states-self._side else state+self._side
         elif direction == "l":
-            return state if state % self._side == 0 else state-1
+            return (state, -1) if state % self._side == 0 else state-1
         elif direction == "r":
-            return state if state % self._side == self._side-1 else state+1
+            return (state, -1) if state % self._side == self._side-1 else state+1
 
+    def p(self, n_state, state, action):
+        """
+        return dynamics of the environment for a next state, given an actual state and action taken.
+        :param n_state: next state
+        :param state: actual state
+        :param action: action taken
+        :return: p(s'|s,a)
+        """
+        for dir in ["u", "d", "l", "r"]:
+            n_s, r = self.walk(state, dir)
+            if n_state == n_s : return 1
+        return 0
 
-def PolEval(policy: np.matrix, theta=1e-3):
+def PolEval(env: Gridworld, policy: np.matrix, theta=1e-3):
     """
     :param policy: matrix of policy in format [n_states, n_actions]
     :param theta: threshold to stop the evaluation
     :return: state values after policy evaluation
     """
-    V = [0.0]*policy.size[0]
+    V = np.zeros(policy.size[0], dtype=float)
+    Q = np.matrix([[[0]*policy.size[1]]*policy.size[0]], dtype=float)
     delta = 0.0
-    while(delta < theta):
-        for idx in range(len(V)):
-            V[idx] = 
-    return
+    while delta < theta:
+        for s in range(len(V)):
+            for a in ["u", "d", "l", "r"]:
+                n_s, r = env.walk(s, a)
+                Q[s, a] += (r + V[n_s])
+            V[s] = np.dot(policy[s,:],Q[s,:])
+    return V
 
 if __name__ == "__main__":
     grid = Gridworld(4, [0, 15])
