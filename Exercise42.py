@@ -21,6 +21,8 @@ class ExcentricGridWorld(Gridworld):
             elif direction == "d": return (16, -1)
             elif direction == "l": return (12, -1)
             elif direction == "r": return (14, -1)
+        elif state == 13 and direction == 'd':
+            return (16, -1)     # attach separate state S_16 to S_13
         else:
             return super()._walk(state, direction)
 
@@ -41,6 +43,7 @@ def test_states(grid: Gridworld):
 if __name__ == "__main__":
     grid = ExcentricGridWorld()
 
+    # test_states(grid)
     grid.pol_eval()
     grid.print_vals()
-    print(["="]*11)
+    [print("-", end =" ") for _ in range(11)]
