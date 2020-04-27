@@ -8,6 +8,7 @@ class Gridworld:
         self._n_states = self._side**2
         self._state_list = np.arange(self._n_states)
         self._values = np.zeros(self._n_states, dtype=float)
+        self._action_values = np.matrix([[0]*4]*self._n_states, dtype=float)
 
     def gen_rand_policy(self):
         return np.matrix([[0.25] * 4] * self._n_states, dtype=float)
@@ -57,7 +58,7 @@ class Gridworld:
         if not policy:
             policy = self.gen_rand_policy()
         V = self._values.copy()
-        Q = np.matrix([[0]*policy.shape[1]]*policy.shape[0], dtype=float)
+        Q = self._action_values.copy()
         delta = 1e100
         while delta > theta:
             delta = 0.0
@@ -70,10 +71,14 @@ class Gridworld:
                 delta = np.maximum(delta, np.abs(V[s] - new_V))
                 V[s] = new_V
         self._values = V
+        self._action_values = Q
         return V
 
 if __name__ == "__main__":
     grid = Gridworld(4, [0, 15])
     grid.pol_eval()
     grid.print_vals()
+    print(["="]*11)
+    print(grid._action_values[11,1])
+    print(grid._action_values[7,1])
 
