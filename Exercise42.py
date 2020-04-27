@@ -6,8 +6,8 @@ class ExcentricGridWorld(Gridworld):
     def __init__(self):
         self._finals = [0, 15]
         self._side = 4
-        self._n_states = self._side**2 + 1
-        self._init_vars()
+        self._n_states = self._side**2
+        self._init_vars(self._n_states+1)
 
     def _walk(self, state, direction):
         """
@@ -24,9 +24,19 @@ class ExcentricGridWorld(Gridworld):
         else:
             return super()._walk(state, direction)
 
+    def gen_rand_policy(self):
+        return np.matrix([[0.25] * 4] * (self._n_states+1), dtype=float)
+
     def print_vals(self):
         super().print_vals()
         print([0, self._values[-1], 0, 0])
+
+def test_states(grid: Gridworld):
+    for idx in range(17):
+        [print("-", end =" ") for _ in range(11)]
+        print()
+        for act in ["u", "d", "l", "r"]:
+            print("s = {}, a = {} : n_s = {}".format(idx, act, grid._walk(idx, act)[0]))
 
 if __name__ == "__main__":
     grid = ExcentricGridWorld()

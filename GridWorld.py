@@ -8,12 +8,12 @@ class Gridworld:
             self._finals = final_states
         self._side = n_side
         self._n_states = self._side**2
-        self._init_vars()
+        self._init_vars(self._n_states)
 
-    def _init_vars(self):
-        self._state_list = np.arange(self._n_states)
-        self._values = np.zeros(self._n_states, dtype=float)
-        self._action_values = np.matrix([[0] * 4] * self._n_states, dtype=float)
+    def _init_vars(self, n_states):
+        self._state_list = np.arange(n_states)
+        self._values = np.zeros(n_states, dtype=float)
+        self._action_values = np.matrix([[0] * 4] * n_states, dtype=float)
 
     def gen_rand_policy(self):
         return np.matrix([[0.25] * 4] * self._n_states, dtype=float)
