@@ -8,6 +8,9 @@ class Gridworld:
         self._n_states = self._side**2
         self._state_list = np.arange(self._n_states)
 
+    def gen_rand_policy(self):
+        return np.matrix([[0.25] * 4] * self._n_states, dtype=float)
+
     def walk(self, state, direction):
         """
         walk a step and find out where you end up.
@@ -18,13 +21,13 @@ class Gridworld:
         if state in self._finals:
             return state, 0
         elif direction == "u":
-            return (state, -1) if state < self._side else state-self._side
+            return (state, -1) if state < self._side else (state-self._side, -1)
         elif direction == "d":
-            return (state, -1) if state > self._n_states-self._side else state+self._side
+            return (state, -1) if state >= self._n_states-self._side else (state+self._side, -1)
         elif direction == "l":
-            return (state, -1) if state % self._side == 0 else state-1
+            return (state, -1) if state % self._side == 0 else (state-1, -1)
         elif direction == "r":
-            return (state, -1) if state % self._side == self._side-1 else state+1
+            return (state, -1) if state % self._side == self._side-1 else (state+1, -1)
 
     def p(self, n_state, state, action):
         """
@@ -45,18 +48,24 @@ def PolEval(env: Gridworld, policy: np.matrix, theta=1e-3):
     :param theta: threshold to stop the evaluation
     :return: state values after policy evaluation
     """
-    V = np.zeros(policy.size[0], dtype=float)
-    Q = np.matrix([[[0]*policy.size[1]]*policy.size[0]], dtype=float)
+    V = np.zeros(policy.shape[0], dtype=float)
+    Q = np.matrix([[0]*policy.shape[1]]*policy.shape[0], dtype=float)
     delta = 0.0
     while delta < theta:
         for s in range(len(V)):
-            for a in ["u", "d", "l", "r"]:
-                n_s, r = env.walk(s, a)
+            for a, action in enumerate(["u", "d", "l", "r"]):
+                n_s, r = env.walk(s, action)
                 Q[s, a] += (r + V[n_s])
-            V[s] = np.dot(policy[s,:],Q[s,:])
+            new_V = np.dot(policy[s, :], np.transpose(Q[s,:]))[0, 0]
+            delta = np.max([delta, np.mod(V[s] - new_V)])
+            V[s] = new_V
     return V
 
 if __name__ == "__main__":
     grid = Gridworld(4, [0, 15])
+
+    grid.walk(1, "d")
+    pol = grid.gen_rand_policy()
+    V = PolEval(grid, pol)
 
 
